@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Página web de un desarrollador de videojuegos">
+    <link rel="icon" href="icon.png" type="image/png">
+
+    <title>Benaiez - Game Developer</title>
+
+    <!-- Incluir la fuente Press Start 2P desde Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <!-- Incluir Font Awesome para los íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* Estilos generales */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #121212;
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Barra de navegación */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #1c1c1c;
+            padding: 15px 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 10;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8em;
+            color: #ffcc00;
+            white-space: nowrap;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            color: #ffffff;
+            font-size: 1em;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            background-color: #ffcc00;
+            color: #121212;
+            transform: scale(1.1);
+        }
+
+        /* Sección principal */
+        .content {
+            padding: 120px 20px 50px;
+            text-align: center;
+        }
+
+        .content h2 {
+            font-size: 2.5em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #ffcc00;
+        }
+
+        /* Sección de Juegos */
+        .section {
+            margin-top: 100px;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+        }
+
+        #games {
+            opacity: 1;
+            transform: translateY(0);
+            transition: none;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .projects {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 50px;
+            flex-wrap: wrap;
+            padding: 0 15px;
+        }
+
+        .project {
+            background-color: #333333;
+            padding: 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .project:hover {
+            transform: scale(1.05);
+        }
+
+        .project img {
+            width: 100%;
+            height: auto;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .project h3 {
+            font-size: 1.5em;
+            color: #ffcc00;
+            margin: 10px 0;
+        }
+
+        .project p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background-color: #ffcc00;
+            color: #121212;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background-color: #e5a900;
+            transform: scale(1.05);
+        }
+
+        footer {
+            background-color: #1c1c1c;
+            padding: 20px;
+            text-align: center;
+            color: #888888;
+            font-size: 0.9em;
+            overflow: hidden; /* Evita que el contenido se desborde */
+        }
+
+        .about, .contact {
+            background-color: #333333;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 50px;
+            width: 100%;
+            max-width: 700px;
+            margin: 20px auto;
+        }
+
+        .about h2, .contact h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #ffcc00;
+        }
+
+        .about p, .contact p {
+            font-size: 1.1em;
+            word-wrap: break-word; /* Asegura que el correo no se desborde */
+            overflow-wrap: break-word;
+        }
+
+        .contact p a {
+            color: #ffcc00;
+            text-decoration: none;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .social-links a {
+            display: inline-block;
+            color: #ffffff;
+            font-size: 2em;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: #ffcc00;
+        }
+
+        /* Ajustes para dispositivos móviles */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5em;
+                white-space: normal;
+                text-align: center;
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 10px;
+            }
+
+            nav a {
+                font-size: 0.9em;
+            }
+
+            .content h2 {
+                font-size: 2em;
+            }
+
+            .projects {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .project {
+                width: 100%;
+                max-width: 95%;
+                margin-bottom: 30px;
+            }
+
+            .about, .contact {
+                width: 90%;
+                margin: 0 auto;
+            }
+
+            .social-links a {
+                font-size: 1.5em;
+            }
+
+            footer {
+                font-size: 0.8em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.2em;
+            }
+
+            nav a {
+                font-size: 0.8em;
+                padding: 8px 12px;
+            }
+
+            .content h2 {
+                font-size: 1.8em;
+            }
+
+            .project {
+                width: 100%;
+                max-width: none;
+            }
+
+            .about, .contact {
+                padding: 20px;
+            }
+
+            .social-links a {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Benaiez - Game Developer</h1>
+        <nav>
+            <a href="#games">Games</a>
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <div class="content">
+
+        <section id="games" class="section visible">
+            <h2>Games</h2>
+            <div class="projects">
+                <!-- Proyecto SpeedCoins -->
+                <div class="project" onmouseenter="showGif(this, 'gifspeed')" onmouseleave="hideGif(this, 'speedcoinsbanner.png')">
+                    <img id="gifspeed" src="speedcoinsbanner.png" alt="SpeedCoins">
+                    <h3>SpeedCoins</h3>
+                    <p>SpeedCoins is a 2D platformer game where players have to collect all the coins scattered across different worlds before time runs out. It won't be easy, as you'll face enemies and obstacles that will test your skills. Try to grab all the coins before time's up!</p>
+                    <a href="https://benaiez.itch.io/speedcoins" class="download-btn" target="_blank">
+                        <i class="fab fa-itch-io"></i> 
+                    </a>
+                    <a href="https://benaiez.itch.io/speedcoins" class="download-btn" target="_blank">
+                        <i class="fab fa-google-play"></i> 
+                    </a>
+                    <a href="https://benaiez.itch.io/speedcoins" class="download-btn" target="_blank">
+                        <i class="fab fa-steam"></i> 
+                    </a>
+                </div>
+
+                <!-- Proyecto RoadCube -->
+                <div class="project" onmouseenter="showGif(this, 'roadcubegif')" onmouseleave="hideGif(this, 'roadcube.png')">
+                    <img id="roadcubegif" src="roadcube.png" alt="RoadCube">
+                    <h3>RoadCube</h3>
+                    <p>Take the cubes back to their place, just find the right way...</p>
+                    <a href="https://benaiez.itch.io/roadcube" class="download-btn" target="_blank">
+                        <i class="fab fa-itch-io"></i>
+                    </a>
+                    <a href="https://benaiez.itch.io/roadcube" class="download-btn" target="_blank">
+                        <i class="fab fa-google-play"></i> 
+                    </a>
+                    <a href="https://benaiez.itch.io/roadcube" class="download-btn" target="_blank">
+                        <i class="fab fa-steam"></i> 
+                    </a>
+                </div>
+
+                <!-- Proyecto BadFame -->
+                <div class="project" onmouseenter="showGif(this, 'badfamegif')" onmouseleave="hideGif(this, 'badfamebanner.png')">
+                    <img id="badfamegif" src="badfamebanner.png" alt="BadFame">
+                    <h3>BadFame</h3>
+                    <p>BadFame is an action video game in which you must avoid being crushed by your fans!</p>
+                    <a href="https://benaiez.itch.io/badfame" class="download-btn" target="_blank">
+                        <i class="fab fa-itch-io"></i> 
+                    </a>
+                    <a href="https://benaiez.itch.io/badfame" class="download-btn" target="_blank">
+                        <i class="fab fa-google-play"></i> 
+                    </a>
+                    <a href="https://benaiez.itch.io/badfame" class="download-btn" target="_blank">
+                        <i class="fab fa-steam"></i> 
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="section">
+            <div class="about">
+                <h2>About</h2>
+                <p>Hi! I'm Benaiez, I live in Colombia. I like to create video games and share them with the world!</p>
+            </div>
+        </section>
+
+        <section id="contact" class="section">
+            <div class="contact">
+                <h2>Contact</h2>
+                <div class="social-links">
+                    <a href="https://gamejolt.com" target="_blank"><i class="fab fa-game-jolt"></i></a><a href="https://gamejolt.com/@Benaiez" target="_blank"><img src="https://img.icons8.com/?size=512&id=YTbMMLHYryHA&format=png" style="width: 30px;"></a>
+                    <a href="https://www.facebook.com/people/Benaiez/100091622667087/" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://x.com/Benaiez" target="_blank"><i class="fab fa-twitter"></i></a>
+                    <a href="https://instagram.com/benaiez" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://benaiez.itch.io/" target="_blank"><i class="fab fa-itch-io"></i></a>
+                    <a href="https://discord.gg/VthpHWQAfy" target="_blank"><i class="fab fa-discord"></i></a>
+                    <a href="https://www.youtube.com/@Benaiez" target="_blank"><i class="fab fa-youtube"></i></a>
+                </div>
+                <p>Email: <a href="mailto:benaiez047@gmail.com">benaiez047@gmail.com</a></p>
+            </div>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Benaiez</p>
+    </footer>
+
+    <script>
+        // Transición suave al hacer clic en los botones de navegación
+        const links = document.querySelectorAll('nav a');
+        links.forEach(link => {
+            link.addEventListener('click', event => {
+                event.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+
+                // Desplazamiento suave hacia la sección
+                window.scrollTo({
+                    top: targetSection.offsetTop - 100, // Ajustamos para que el encabezado no cubra la sección
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Intersection Observer para la visibilidad de las secciones
+        const sections = document.querySelectorAll('.section');
+        const observerOptions = {
+            root: null,
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                } else {
+                    entry.target.classList.remove('visible');
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        // Funciones para mostrar/ocultar GIF
+        function showGif(projectElement, gifId) {
+            const imgElement = projectElement.querySelector('img');
+            imgElement.src = gifId + '.gif'; // Cambia a GIF correspondiente
+        }
+
+        function hideGif(projectElement, projectName) {
+            const imgElement = projectElement.querySelector('img');
+            imgElement.src = projectName 
+        }
+    </script>
+
+</body>
+</html>
+
