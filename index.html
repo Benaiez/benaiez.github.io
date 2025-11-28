@@ -604,6 +604,19 @@
         });
         const observer = new IntersectionObserver((entries) => { entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); else e.target.classList.remove('visible'); }); }, { threshold: 0.15 });
         document.querySelectorAll('.fade-section').forEach(s => observer.observe(s));
+
+    // --- OPTIMIZACIÓN: PRECARGA DE GIFS ---
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            document.querySelectorAll('.project-card').forEach(card => {
+                const gifUrl = card.getAttribute('data-gif');
+                if (gifUrl) {
+                    const preloadImage = new Image();
+                    preloadImage.src = gifUrl; // El navegador lo guarda en caché
+                }
+            });
+        }, 1000); // Espera 1 segundo para no ralentizar la carga inicial
+    });
     </script>
 </body>
 </html>
