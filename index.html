@@ -2,8 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Portafolio de Benaiez - Game Developer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> <meta name="description" content="Portafolio de Benaiez - Game Developer">
     <link rel="icon" href="icon.png" type="image/png">
     <title>Benaiez | Game Developer</title>
 
@@ -25,7 +24,7 @@
             --font-tech: 'Rajdhani', sans-serif;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html { scroll-behavior: smooth; }
         body {
             background-color: var(--dark-bg);
@@ -35,6 +34,9 @@
             min-height: 100vh;
             cursor: default;
         }
+        
+        /* Bloquear scroll cuando el juego está activo */
+        body.game-active { overflow: hidden; touch-action: none; }
 
         /* --- CANVAS --- */
         #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%); }
@@ -50,7 +52,7 @@
 
         .notification-toast {
             position: fixed; top: 25%; left: 50%; transform: translate(-50%, -50%);
-            font-family: var(--font-pixel); font-size: 1.2rem;
+            font-family: var(--font-pixel); font-size: 1.2rem; width: 100%;
             text-align: center; pointer-events: none; opacity: 0; z-index: 25;
             transition: opacity 0.3s, transform 0.3s;
         }
@@ -61,7 +63,7 @@
 
         #game-ui {
             position: fixed; top: 20px; left: 20px; font-family: var(--font-pixel); color: #fff; z-index: 20;
-            display: none; text-align: left;
+            display: none; text-align: left; pointer-events: none;
         }
         body.game-active #game-ui { display: block; }
         
@@ -83,16 +85,44 @@
 
         .game-over-screen {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            text-align: center; display: none; z-index: 30;
+            text-align: center; display: none; z-index: 30; width: 90%;
         }
         body.game-over .game-over-screen { display: block; }
-        .game-over-title { font-size: 3rem; color: var(--danger); margin-bottom: 20px; text-shadow: 4px 4px 0 #000; }
+        .game-over-title { font-size: 2.5rem; color: var(--danger); margin-bottom: 20px; text-shadow: 4px 4px 0 #000; }
         
         .restart-btn {
             background: #fff; color: #000; padding: 15px 30px; border: none; font-family: var(--font-pixel);
             cursor: pointer; font-size: 1rem; margin-top: 20px; transition: 0.3s;
         }
         .restart-btn:hover { background: var(--primary); transform: scale(1.1); }
+
+        /* --- JOYSTICKS MÓVIL --- */
+        #mobile-controls {
+            position: fixed; bottom: 20px; left: 0; width: 100%; height: 150px;
+            z-index: 22; display: none; pointer-events: none; /* Los hijos tendrán pointer-events: auto */
+        }
+        body.game-active.is-mobile #mobile-controls { display: flex; justify-content: space-between; padding: 0 40px; }
+        
+        .joystick-zone {
+            width: 120px; height: 120px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            position: relative;
+            pointer-events: auto; /* Permitir toque */
+        }
+        .joystick-knob {
+            width: 50px; height: 50px;
+            background: rgba(255, 204, 0, 0.5);
+            border-radius: 50%;
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px var(--primary);
+        }
+        .joystick-label {
+            position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%);
+            font-family: var(--font-tech); font-size: 0.8rem; color: #aaa; opacity: 0.7;
+        }
 
         /* --- HEADER & HERO --- */
         header {
@@ -103,7 +133,7 @@
             display: flex; justify-content: space-between; align-items: center;
             z-index: 100; transition: transform 0.3s;
         }
-        body.game-active header { transform: translate(-50%, -150%); }
+        body.game-active header { transform: translate(-50%, -200%); }
 
         header h1 { font-family: var(--font-pixel); font-size: 1.5rem; color: var(--primary); text-shadow: 2px 2px 0 #000; }
         nav { display: flex; gap: 10px; }
@@ -139,35 +169,14 @@
         .section-container { max-width: 1200px; margin: 0 auto; min-height: auto; padding: 60px 20px; display: flex; flex-direction: column; justify-content: center; margin-bottom: 20px; }
         .section-title { font-family: var(--font-pixel); font-size: 2rem; margin-bottom: 40px; text-align: center; text-shadow: 4px 4px 0 #000; }
         
-        /* --- PROYECTOS OPTIMIZADOS (La clave del GIF instantáneo) --- */
         .projects { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; width: 100%; }
         
-        .project-card { 
-            background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; 
-            transition: all 0.4s ease; display: flex; flex-direction: column; height: 100%; position: relative; overflow: hidden; 
-        }
+        .project-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; transition: all 0.4s ease; display: flex; flex-direction: column; height: 100%; position: relative; overflow: hidden; }
         .project-card:hover { transform: translateY(-10px) scale(1.02); border-color: var(--primary); box-shadow: 0 0 30px rgba(255, 204, 0, 0.2); }
         
-        .img-wrapper { 
-            width: 100%; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; margin-bottom: 20px; background: #000; 
-            position: relative; /* Necesario para superponer el GIF */
-        }
-        
-        /* Imagen Estática */
-        .project-card img.static-img { 
-            width: 100%; height: 100%; object-fit: cover; 
-            position: absolute; top: 0; left: 0; z-index: 1;
-        }
-
-        /* GIF Superpuesto (Invisible por defecto) */
-        .project-card img.gif-overlay {
-            width: 100%; height: 100%; object-fit: cover;
-            position: absolute; top: 0; left: 0; z-index: 2;
-            opacity: 0; 
-            transition: opacity 0.2s ease-in-out; /* Transición suave */
-        }
-
-        /* Al hacer hover, mostramos el GIF */
+        .img-wrapper { width: 100%; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; margin-bottom: 20px; background: #000; position: relative; }
+        .project-card img.static-img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 1; }
+        .project-card img.gif-overlay { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 2; opacity: 0; transition: opacity 0.2s ease-in-out; }
         .project-card:hover img.gif-overlay { opacity: 1; }
 
         .card-content { flex-grow: 1; display: flex; flex-direction: column; }
@@ -190,14 +199,18 @@
         .fade-section { opacity: 0; transform: translateY(50px); transition: all 0.8s ease; }
         .fade-section.visible { opacity: 1; transform: translateY(0); }
 
+        /* --- MOBILE OPTIMIZATION --- */
         @media (max-width: 768px) {
             header { width: 95%; top: 15px; padding: 12px 20px; }
             header h1 { font-size: 1.2rem; }
-            .start-game-ui { display: none !important; }
-            #game-canvas { display: none !important; }
-            .hero h2 { font-size: 2rem; }
+            
+            /* En móvil NO ocultamos el juego, pero cambiamos la UI */
+            .hero h2 { font-size: 1.8rem; margin-bottom: 30px; }
             .section-container { padding: 40px 20px; margin-bottom: 0px; }
             section { scroll-margin-top: 100px; }
+            
+            /* Ajustes del canvas para que no se deforme */
+            #game-canvas { width: 100%; height: 100%; }
         }
     </style>
 </head>
@@ -215,6 +228,17 @@
     <div id="game-ui">
         <div class="hud-row hud-score">SCORE: <span id="score-val">0</span></div>
         <div class="hud-row hud-health">HP: <span id="hp-val">100</span>%</div>
+    </div>
+
+    <div id="mobile-controls">
+        <div class="joystick-zone" id="joy-left">
+            <div class="joystick-knob" id="knob-left"></div>
+            <div class="joystick-label">MOVE</div>
+        </div>
+        <div class="joystick-zone" id="joy-right">
+            <div class="joystick-knob" id="knob-right"></div>
+            <div class="joystick-label">AIM & FIRE</div>
+        </div>
     </div>
 
     <div class="game-over-screen">
@@ -240,7 +264,7 @@
                 <button class="start-game-btn" onclick="startGame()">
                     <i class="fas fa-gamepad"></i> START MISSION
                 </button>
-                <p style="font-size: 0.8rem; margin-top: 15px; opacity: 0.6;">[WASD to Move] [Hold Click to Shoot]</p>
+                <p style="font-size: 0.8rem; margin-top: 15px; opacity: 0.6;" id="controls-hint">[WASD to Move] [Hold Click to Shoot]</p>
             </div>
         </div>
     </section>
@@ -250,9 +274,7 @@
             <h2 class="section-title">PROJECTS</h2>
             <div class="projects">
                 <article class="project-card" data-gif="gifspeed.gif">
-                    <div class="img-wrapper">
-                        <img class="static-img" src="speedcoinsbanner.png" alt="SpeedCoins">
-                    </div>
+                    <div class="img-wrapper"><img class="static-img" src="speedcoinsbanner.png" alt="SpeedCoins"></div>
                     <div class="card-content">
                         <h3>SpeedCoins</h3>
                         <p>A 2D platformer where time is your enemy. Collect coins, dodge traps, survive.</p>
@@ -262,11 +284,8 @@
                         </div>
                     </div>
                 </article>
-                
                 <article class="project-card" data-gif="roadcube.gif">
-                    <div class="img-wrapper">
-                        <img class="static-img" src="roadcube.png" alt="RoadCube">
-                    </div>
+                    <div class="img-wrapper"><img class="static-img" src="roadcube.png" alt="RoadCube"></div>
                     <div class="card-content">
                         <h3>RoadCube</h3>
                         <p>Logic and precision. Take the cubes back to their rightful place.</p>
@@ -275,11 +294,8 @@
                         </div>
                     </div>
                 </article>
-                
                 <article class="project-card" data-gif="badfame.gif">
-                    <div class="img-wrapper">
-                        <img class="static-img" src="badfamebanner.png" alt="BadFame">
-                    </div>
+                    <div class="img-wrapper"><img class="static-img" src="badfamebanner.png" alt="BadFame"></div>
                     <div class="card-content">
                         <h3>BadFame</h3>
                         <p>Action packed chaos. Avoid being crushed by your own overwhelming fans!</p>
@@ -325,21 +341,21 @@
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
         window.onload = function() { 
             window.scrollTo(0, 0); 
-            
-            // --- CARGA INSTANTÁNEA DE GIFS (Pre-Inyección) ---
-            // Esto carga el GIF oculto justo encima de la imagen estática.
+            // Inyectar GIFs
             document.querySelectorAll('.project-card').forEach(card => {
                 const gifUrl = card.dataset.gif;
                 const wrapper = card.querySelector('.img-wrapper');
                 if (gifUrl && wrapper) {
                     const gifImg = document.createElement('img');
-                    gifImg.src = gifUrl;
-                    gifImg.className = 'gif-overlay';
-                    gifImg.alt = "Gameplay GIF";
-                    // Lo añadimos al wrapper. El CSS se encarga de posicionarlo y ocultarlo.
+                    gifImg.src = gifUrl; gifImg.className = 'gif-overlay'; gifImg.alt = "Gameplay GIF";
                     wrapper.appendChild(gifImg);
                 }
             });
+            // Detectar Movil
+            if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768) {
+                document.body.classList.add('is-mobile');
+                document.getElementById('controls-hint').innerText = "[Use Joysticks to Play]";
+            }
         };
 
         // --- MOTOR DEL JUEGO ---
@@ -365,11 +381,13 @@
         let mousePos = { x: 0, y: 0 };
         let keys = {};
         let shakeTime = 0;
-        
-        // AUTO FIRE
         let isFiring = false;
         let lastShotTime = 0;
         const FIRE_RATE = 120;
+
+        // JOYSTICK VARS
+        let joyLeft = { active: false, x: 0, y: 0, originX: 0, originY: 0, touchId: null };
+        let joyRight = { active: false, x: 0, y: 0, originX: 0, originY: 0, touchId: null };
 
         function resizeGame() {
             gameCanvas.width = window.innerWidth;
@@ -378,12 +396,90 @@
         window.addEventListener('resize', resizeGame);
         resizeGame();
 
+        // MOUSE INPUT
         window.addEventListener('mousemove', e => { mousePos.x = e.clientX; mousePos.y = e.clientY; });
         window.addEventListener('mousedown', () => { isFiring = true; });
         window.addEventListener('mouseup', () => { isFiring = false; });
-        
         window.addEventListener('keydown', e => keys[e.code] = true);
         window.addEventListener('keyup', e => keys[e.code] = false);
+
+        // TOUCH INPUT (JOYSTICKS)
+        const leftZone = document.getElementById('joy-left');
+        const rightZone = document.getElementById('joy-right');
+        const knobLeft = document.getElementById('knob-left');
+        const knobRight = document.getElementById('knob-right');
+
+        function handleTouchStart(e, type) {
+            e.preventDefault();
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const t = e.changedTouches[i];
+                if(type === 'left' && !joyLeft.active) {
+                    joyLeft.active = true; joyLeft.touchId = t.identifier;
+                    const rect = leftZone.getBoundingClientRect();
+                    joyLeft.originX = rect.left + rect.width/2;
+                    joyLeft.originY = rect.top + rect.height/2;
+                    updateJoystick(t, 'left');
+                } else if(type === 'right' && !joyRight.active) {
+                    joyRight.active = true; joyRight.touchId = t.identifier;
+                    const rect = rightZone.getBoundingClientRect();
+                    joyRight.originX = rect.left + rect.width/2;
+                    joyRight.originY = rect.top + rect.height/2;
+                    isFiring = true; // Auto fire con joystick derecho
+                    updateJoystick(t, 'right');
+                }
+            }
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const t = e.changedTouches[i];
+                if (t.identifier === joyLeft.touchId) updateJoystick(t, 'left');
+                if (t.identifier === joyRight.touchId) updateJoystick(t, 'right');
+            }
+        }
+
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const t = e.changedTouches[i];
+                if (t.identifier === joyLeft.touchId) {
+                    joyLeft.active = false; joyLeft.x = 0; joyLeft.y = 0;
+                    knobLeft.style.transform = `translate(-50%, -50%)`;
+                }
+                if (t.identifier === joyRight.touchId) {
+                    joyRight.active = false; isFiring = false;
+                    knobRight.style.transform = `translate(-50%, -50%)`;
+                }
+            }
+        }
+
+        function updateJoystick(touch, type) {
+            const maxDist = 40;
+            const joy = type === 'left' ? joyLeft : joyRight;
+            const knob = type === 'left' ? knobLeft : knobRight;
+            
+            let dx = touch.clientX - joy.originX;
+            let dy = touch.clientY - joy.originY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Normalizar input
+            if(dist > maxDist) {
+                dx = (dx / dist) * maxDist;
+                dy = (dy / dist) * maxDist;
+            }
+            
+            joy.x = dx / maxDist; // -1 a 1
+            joy.y = dy / maxDist; // -1 a 1
+            
+            knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+        }
+
+        leftZone.addEventListener('touchstart', (e) => handleTouchStart(e, 'left'), {passive: false});
+        rightZone.addEventListener('touchstart', (e) => handleTouchStart(e, 'right'), {passive: false});
+        window.addEventListener('touchmove', handleTouchMove, {passive: false});
+        window.addEventListener('touchend', handleTouchEnd);
+
 
         class Player {
             constructor() {
@@ -391,14 +487,32 @@
                 this.radius = 15; this.angle = 0; this.vel = { x: 0, y: 0 }; this.speed = 5;
             }
             update() {
-                if (keys['KeyW'] || keys['ArrowUp']) this.vel.y = -this.speed;
-                else if (keys['KeyS'] || keys['ArrowDown']) this.vel.y = this.speed; else this.vel.y = 0;
-                if (keys['KeyA'] || keys['ArrowLeft']) this.vel.x = -this.speed;
-                else if (keys['KeyD'] || keys['ArrowRight']) this.vel.x = this.speed; else this.vel.x = 0;
+                // Keyboard Input
+                let kx = 0, ky = 0;
+                if (keys['KeyW'] || keys['ArrowUp']) ky = -1;
+                if (keys['KeyS'] || keys['ArrowDown']) ky = 1;
+                if (keys['KeyA'] || keys['ArrowLeft']) kx = -1;
+                if (keys['KeyD'] || keys['ArrowRight']) kx = 1;
+
+                // Combine with Joystick
+                if(joyLeft.active) {
+                    this.vel.x = joyLeft.x * this.speed;
+                    this.vel.y = joyLeft.y * this.speed;
+                } else {
+                    this.vel.x = kx * this.speed;
+                    this.vel.y = ky * this.speed;
+                }
+
                 this.x += this.vel.x; this.y += this.vel.y;
                 if(this.x < 0) this.x = 0; if(this.x > gameCanvas.width) this.x = gameCanvas.width;
                 if(this.y < 0) this.y = 0; if(this.y > gameCanvas.height) this.y = gameCanvas.height;
-                this.angle = Math.atan2(mousePos.y - this.y, mousePos.x - this.x);
+
+                // Aiming
+                if(joyRight.active) {
+                    this.angle = Math.atan2(joyRight.y, joyRight.x);
+                } else {
+                    this.angle = Math.atan2(mousePos.y - this.y, mousePos.x - this.x);
+                }
             }
             draw() {
                 gCtx.save(); gCtx.translate(this.x, this.y);
@@ -420,10 +534,6 @@
                     gCtx.strokeStyle = hasW ? '#00e5ff' : '#ffcc00'; gCtx.stroke();
                 }
                 gCtx.restore();
-                gCtx.beginPath(); gCtx.arc(mousePos.x, mousePos.y, 10, 0, Math.PI*2);
-                gCtx.moveTo(mousePos.x - 15, mousePos.y); gCtx.lineTo(mousePos.x + 15, mousePos.y);
-                gCtx.moveTo(mousePos.x, mousePos.y - 15); gCtx.lineTo(mousePos.x, mousePos.y + 15);
-                gCtx.strokeStyle = 'rgba(0, 229, 255, 0.5)'; gCtx.stroke();
             }
             shoot() {
                 if(activePowerUpTime > 0) {
@@ -455,7 +565,7 @@
                 const py = player ? player.y : gameCanvas.height/2;
                 const angle = Math.atan2(py - this.y, px - this.x);
                 
-                // --- HARDCORE SPEED ---
+                // HARDCORE SPEED
                 let baseSpeed = Math.random() * 2 + 2; 
                 let scoreBonus = score / 800; 
                 this.speed = Math.min(baseSpeed + Math.log(1 + scoreBonus), 8.5); 
@@ -478,7 +588,7 @@
                 this.type = type;
                 this.x = Math.random() * (gameCanvas.width - 100) + 50;
                 this.y = Math.random() * (gameCanvas.height - 100) + 50;
-                this.radius = 12; this.life = 420; this.pulse = 0; // 7 segundos
+                this.radius = 12; this.life = 420; this.pulse = 0; // 7s
             }
             update() { this.life--; this.pulse += 0.1; }
             draw() {
@@ -517,9 +627,8 @@
         }
 
         function spawnEnemy() {
-            // --- SPAWN RATE HARDCORE ---
             const diff = score / 3000; 
-            const chance = 0.03 + Math.min(diff, 0.09); // Max 9-10% por frame
+            const chance = 0.03 + Math.min(diff, 0.09); // Max 9%
             if(Math.random() < chance) enemies.push(new Enemy());
         }
 
@@ -550,7 +659,6 @@
 
             if(activePowerUpTime > 0) activePowerUpTime--;
 
-            // --- AUTO FIRE LOGIC ---
             if(isFiring && performance.now() - lastShotTime > FIRE_RATE) {
                 player.shoot();
                 lastShotTime = performance.now();
@@ -607,7 +715,7 @@
         }
 
         function startGame() {
-            if (window.innerWidth <= 768) return; 
+            // Permitimos inicio en móvil ahora que hay controles
             document.body.classList.add('game-active');
             window.scrollTo(0,0); document.body.style.overflow = 'hidden';
             score = 0; hp = 100; activePowerUpTime = 0;
@@ -648,6 +756,11 @@
         }
         initBg(); animateBg(); window.addEventListener('resize', () => { bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight; initBg(); });
 
+        document.querySelectorAll('.project-card').forEach(c => {
+            const img = c.querySelector('img');
+            c.addEventListener('mouseenter', () => { if(c.dataset.gif) img.src = c.dataset.gif; });
+            c.addEventListener('mouseleave', () => { if(c.dataset.static) img.src = c.dataset.static; });
+        });
         const observer = new IntersectionObserver((entries) => { entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); else e.target.classList.remove('visible'); }); }, { threshold: 0.15 });
         document.querySelectorAll('.fade-section').forEach(s => observer.observe(s));
     </script>
