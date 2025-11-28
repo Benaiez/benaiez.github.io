@@ -139,11 +139,37 @@
         .section-container { max-width: 1200px; margin: 0 auto; min-height: auto; padding: 60px 20px; display: flex; flex-direction: column; justify-content: center; margin-bottom: 20px; }
         .section-title { font-family: var(--font-pixel); font-size: 2rem; margin-bottom: 40px; text-align: center; text-shadow: 4px 4px 0 #000; }
         
+        /* --- PROYECTOS OPTIMIZADOS (La clave del GIF instantáneo) --- */
         .projects { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; width: 100%; }
-        .project-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; transition: all 0.4s ease; display: flex; flex-direction: column; height: 100%; position: relative; overflow: hidden; }
+        
+        .project-card { 
+            background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; 
+            transition: all 0.4s ease; display: flex; flex-direction: column; height: 100%; position: relative; overflow: hidden; 
+        }
         .project-card:hover { transform: translateY(-10px) scale(1.02); border-color: var(--primary); box-shadow: 0 0 30px rgba(255, 204, 0, 0.2); }
-        .img-wrapper { width: 100%; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; margin-bottom: 20px; background: #000; }
-        .project-card img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
+        
+        .img-wrapper { 
+            width: 100%; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; margin-bottom: 20px; background: #000; 
+            position: relative; /* Necesario para superponer el GIF */
+        }
+        
+        /* Imagen Estática */
+        .project-card img.static-img { 
+            width: 100%; height: 100%; object-fit: cover; 
+            position: absolute; top: 0; left: 0; z-index: 1;
+        }
+
+        /* GIF Superpuesto (Invisible por defecto) */
+        .project-card img.gif-overlay {
+            width: 100%; height: 100%; object-fit: cover;
+            position: absolute; top: 0; left: 0; z-index: 2;
+            opacity: 0; 
+            transition: opacity 0.2s ease-in-out; /* Transición suave */
+        }
+
+        /* Al hacer hover, mostramos el GIF */
+        .project-card:hover img.gif-overlay { opacity: 1; }
+
         .card-content { flex-grow: 1; display: flex; flex-direction: column; }
         .project-card h3 { font-family: var(--font-pixel); font-size: 1.1rem; color: var(--primary); margin-bottom: 12px; }
         .project-card p { margin-bottom: 45px; line-height: 1.6; color: #ddd; }
@@ -223,8 +249,10 @@
         <section id="games" class="section-container fade-section">
             <h2 class="section-title">PROJECTS</h2>
             <div class="projects">
-                <article class="project-card" data-static="speedcoinsbanner.png" data-gif="gifspeed.gif">
-                    <div class="img-wrapper"><img src="speedcoinsbanner.png" alt="SpeedCoins"></div>
+                <article class="project-card" data-gif="gifspeed.gif">
+                    <div class="img-wrapper">
+                        <img class="static-img" src="speedcoinsbanner.png" alt="SpeedCoins">
+                    </div>
                     <div class="card-content">
                         <h3>SpeedCoins</h3>
                         <p>A 2D platformer where time is your enemy. Collect coins, dodge traps, survive.</p>
@@ -234,8 +262,11 @@
                         </div>
                     </div>
                 </article>
-                <article class="project-card" data-static="roadcube.png" data-gif="roadcube.gif">
-                    <div class="img-wrapper"><img src="roadcube.png" alt="RoadCube"></div>
+                
+                <article class="project-card" data-gif="roadcube.gif">
+                    <div class="img-wrapper">
+                        <img class="static-img" src="roadcube.png" alt="RoadCube">
+                    </div>
                     <div class="card-content">
                         <h3>RoadCube</h3>
                         <p>Logic and precision. Take the cubes back to their rightful place.</p>
@@ -244,8 +275,11 @@
                         </div>
                     </div>
                 </article>
-                <article class="project-card" data-static="badfamebanner.png" data-gif="badfame.gif">
-                    <div class="img-wrapper"><img src="badfamebanner.png" alt="BadFame"></div>
+                
+                <article class="project-card" data-gif="badfame.gif">
+                    <div class="img-wrapper">
+                        <img class="static-img" src="badfamebanner.png" alt="BadFame">
+                    </div>
                     <div class="card-content">
                         <h3>BadFame</h3>
                         <p>Action packed chaos. Avoid being crushed by your own overwhelming fans!</p>
@@ -289,9 +323,26 @@
 
     <script>
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-        window.onload = function() { window.scrollTo(0, 0); };
+        window.onload = function() { 
+            window.scrollTo(0, 0); 
+            
+            // --- CARGA INSTANTÁNEA DE GIFS (Pre-Inyección) ---
+            // Esto carga el GIF oculto justo encima de la imagen estática.
+            document.querySelectorAll('.project-card').forEach(card => {
+                const gifUrl = card.dataset.gif;
+                const wrapper = card.querySelector('.img-wrapper');
+                if (gifUrl && wrapper) {
+                    const gifImg = document.createElement('img');
+                    gifImg.src = gifUrl;
+                    gifImg.className = 'gif-overlay';
+                    gifImg.alt = "Gameplay GIF";
+                    // Lo añadimos al wrapper. El CSS se encarga de posicionarlo y ocultarlo.
+                    wrapper.appendChild(gifImg);
+                }
+            });
+        };
 
-        // --- MOTOR DEL JUEGO FINAL ---
+        // --- MOTOR DEL JUEGO ---
         const gameCanvas = document.getElementById('game-canvas');
         const gCtx = gameCanvas.getContext('2d');
         const damageOverlay = document.getElementById('damage-overlay');
@@ -597,26 +648,8 @@
         }
         initBg(); animateBg(); window.addEventListener('resize', () => { bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight; initBg(); });
 
-        document.querySelectorAll('.project-card').forEach(c => {
-            const img = c.querySelector('img');
-            c.addEventListener('mouseenter', () => { if(c.dataset.gif) img.src = c.dataset.gif; });
-            c.addEventListener('mouseleave', () => { if(c.dataset.static) img.src = c.dataset.static; });
-        });
         const observer = new IntersectionObserver((entries) => { entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); else e.target.classList.remove('visible'); }); }, { threshold: 0.15 });
         document.querySelectorAll('.fade-section').forEach(s => observer.observe(s));
-
-    // --- OPTIMIZACIÓN: PRECARGA DE GIFS ---
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            document.querySelectorAll('.project-card').forEach(card => {
-                const gifUrl = card.getAttribute('data-gif');
-                if (gifUrl) {
-                    const preloadImage = new Image();
-                    preloadImage.src = gifUrl; // El navegador lo guarda en caché
-                }
-            });
-        }, 1000); // Espera 1 segundo para no ralentizar la carga inicial
-    });
     </script>
 </body>
 </html>
